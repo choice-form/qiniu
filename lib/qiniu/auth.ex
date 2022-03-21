@@ -17,12 +17,12 @@ defmodule Qiniu.Auth do
       policy = Qiniu.PutPolicy.build("scope")
       uptoken = Qiniu.Auth.generate_uptoken(policy)
   """
-  @spec generate_uptoken(Qiniu.PutPolicy.t) :: String.t
+  @spec generate_uptoken(Qiniu.PutPolicy.t()) :: String.t()
   def generate_uptoken(%PutPolicy{} = put_policy) do
     [access_key: access_key, secret_key: secret_key] =
-      Keyword.take(Qiniu.config, [:access_key, :secret_key])
+      Keyword.take(Qiniu.config(), [:access_key, :secret_key])
 
-    encoded_put_policy = PutPolicy.encoded_json put_policy
+    encoded_put_policy = PutPolicy.encoded_json(put_policy)
     encoded_sign = hex_digest(secret_key, encoded_put_policy)
 
     "#{access_key}:#{encoded_sign}:#{encoded_put_policy}"
@@ -53,13 +53,18 @@ defmodule Qiniu.Auth do
   def authorize_download_url(url, expires_in) do
     deadline = Qiniu.Utils.calculate_deadline(expires_in)
 
-    parsed = url |> URI.encode |> URI.parse
-    query = (parsed.query || "") |> URI.decode_query |> Map.merge(%{"e" => deadline}) |> URI.encode_query
+    parsed = url |> URI.encode() |> URI.parse()
+
+    query =
+      (parsed.query || "")
+      |> URI.decode_query()
+      |> Map.merge(%{"e" => deadline})
+      |> URI.encode_query()
 
     download_url = %{parsed | query: query} |> to_string
 
     [access_key: access_key, secret_key: secret_key] =
-      Keyword.take(Qiniu.config, [:access_key, :secret_key])
+      Keyword.take(Qiniu.config(), [:access_key, :secret_key])
 
     encoded_sign = hex_digest(secret_key, download_url)
     down_token = access_key <> ":" <> encoded_sign
@@ -77,14 +82,16 @@ defmodule Qiniu.Auth do
   """
   def access_token(url, body \\ "") do
     uri = URI.parse(url)
-    signing_str = if uri.query do
-                    "#{uri.path}?#{uri.query}\n#{body}"
-                  else
-                    uri.path <> "\n" <> body
-                  end
+
+    signing_str =
+      if uri.query do
+        "#{uri.path}?#{uri.query}\n#{body}"
+      else
+        uri.path <> "\n" <> body
+      end
 
     [access_key: access_key, secret_key: secret_key] =
-      Keyword.take(Qiniu.config, [:access_key, :secret_key])
+      Keyword.take(Qiniu.config(), [:access_key, :secret_key])
 
     encoded_sign = hex_digest(secret_key, signing_str)
 
@@ -93,6 +100,6 @@ defmodule Qiniu.Auth do
 
   @doc false
   def hex_digest(key, data) when is_binary(key) and is_binary(data) do
-    :crypto.hmac(:sha, key, data) |> Base.url_encode64
+    :crypto.mac(:hmac, :sha, key, data) |> Base.url_encode64()
   end
 end
