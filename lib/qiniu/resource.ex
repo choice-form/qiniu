@@ -52,6 +52,22 @@ defmodule Qiniu.Resource do
   end
 
   @doc """
+  Delete an entry after days
+
+  ## Fields
+
+    * `uri` - uri of your entry to delete, "bucket:key"
+    * `days` - delete entry after these days. `0` means cancel the deletion.
+  """
+  def delete(uri, days) when is_integer(days) and days >= 0 do
+    encoded_uri = Base.url_encode64(uri)
+
+    [Qiniu.config()[:rs_host], "deleteAfterDays", encoded_uri, Integer.to_string(days)]
+    |> Path.join()
+    |> auth_post()
+  end
+
+  @doc """
   Batch operations for mix of `stat`, `copy`, `move` and `delete`
 
   ## Fields
@@ -60,7 +76,7 @@ defmodule Qiniu.Resource do
   """
   def batch(ops) do
     params = Enum.map_join(ops, "&", &("op=" <> apply(__MODULE__, :op_path, &1)))
-    url = Qiniu.config[:rs_host] <> "?" <> params
+    url = Qiniu.config()[:rs_host] <> "?" <> params
     auth_post(url)
   end
 
@@ -81,9 +97,9 @@ defmodule Qiniu.Resource do
   """
   def list(bucket, opts \\ []) do
     opts = Keyword.put(opts, :bucket, bucket)
-    params = Enum.map_join(opts, "&", fn({k, v}) -> "#{k}=#{v}" end)
+    params = Enum.map_join(opts, "&", fn {k, v} -> "#{k}=#{v}" end)
 
-    url = Path.join([Qiniu.config[:rsf_host], "list?#{params}"])
+    url = Path.join([Qiniu.config()[:rsf_host], "list?#{params}"])
     auth_post(url)
   end
 
@@ -98,7 +114,7 @@ defmodule Qiniu.Resource do
   def fetch(url, entry_uri) do
     encoded_url = Base.url_encode64(url)
     encoded_dest = Base.url_encode64(entry_uri)
-    url = Path.join([Qiniu.config[:io_host], "fetch", encoded_url, "to", encoded_dest])
+    url = Path.join([Qiniu.config()[:io_host], "fetch", encoded_url, "to", encoded_dest])
     auth_post(url)
   end
 
@@ -112,7 +128,7 @@ defmodule Qiniu.Resource do
     * `uri` - URI of destiny entry, "bucket:key"
   """
   def prefetch(uri) do
-    url = Path.join([Qiniu.config[:io_host], "prefetch", Base.url_encode64(uri)])
+    url = Path.join([Qiniu.config()[:io_host], "prefetch", Base.url_encode64(uri)])
     auth_post(url)
   end
 
@@ -127,7 +143,7 @@ defmodule Qiniu.Resource do
   def chgm(entry_uri, mime) do
     encoded_uri = Base.url_encode64(entry_uri)
     encoded_mime = Base.url_encode64(mime)
-    url = Path.join([Qiniu.config[:rs_host], "chgm", encoded_uri, "mime", encoded_mime])
+    url = Path.join([Qiniu.config()[:rs_host], "chgm", encoded_uri, "mime", encoded_mime])
     auth_post(url)
   end
 
@@ -137,19 +153,22 @@ defmodule Qiniu.Resource do
   end
 
   defp op_url(op, source_uri, dest_uri \\ nil) do
-    Qiniu.config[:rs_host] <> op_path(op, source_uri, dest_uri)
+    Qiniu.config()[:rs_host] <> op_path(op, source_uri, dest_uri)
   end
 
   @doc false
   def op_path(op, source_uri, dest_uri \\ nil) do
     encoded_source = Base.url_encode64(source_uri)
-    encoded_dest   = if dest_uri, do: Base.url_encode64(dest_uri)
-    parts = case op do
-      :stat   -> ["stat", encoded_source]
-      :delete -> ["delete", encoded_source]
-      :move   -> ["move", encoded_source, encoded_dest]
-      :copy   -> ["copy", encoded_source, encoded_dest]
-    end
+    encoded_dest = if dest_uri, do: Base.url_encode64(dest_uri)
+
+    parts =
+      case op do
+        :stat -> ["stat", encoded_source]
+        :delete -> ["delete", encoded_source]
+        :move -> ["move", encoded_source, encoded_dest]
+        :copy -> ["copy", encoded_source, encoded_dest]
+      end
+
     "/" <> Path.join(parts)
   end
 end
