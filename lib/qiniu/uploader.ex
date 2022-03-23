@@ -32,7 +32,7 @@ defmodule Qiniu.Uploader do
   """
   def upload(put_policy, local_file, opts \\ [])
 
-  def upload(%PutPolicy{}=put_policy, local_file, opts) do
+  def upload(%PutPolicy{} = put_policy, local_file, opts) do
     uptoken = Qiniu.Auth.generate_uptoken(put_policy)
     upload(uptoken, local_file, opts)
   end
@@ -41,9 +41,33 @@ defmodule Qiniu.Uploader do
     # https://github.com/benoitc/hackney#send-a-body
     # Name should be string
     opts = Enum.map(opts, fn {k, v} -> {to_string(k), to_string(v)} end)
-    data = List.flatten opts, [{:file, local_file}, {"token", uptoken}]
+    data = List.flatten(opts, [{:file, local_file}, {"token", uptoken}])
     post_data = {:multipart, data}
 
-    Qiniu.HTTP.post(Qiniu.config[:up_host], post_data)
+    Qiniu.HTTP.post(Qiniu.config()[:up_host], post_data)
+  end
+
+  def upload_buffer(put_policy, file_content, opts \\ [])
+
+  def upload_buffer(%PutPolicy{} = put_policy, file_content, opts) do
+    uptoken = Qiniu.Auth.generate_uptoken(put_policy)
+    upload_buffer(uptoken, file_content, opts)
+  end
+
+  def upload_buffer(uptoken, file_content, opts) when is_binary(uptoken) do
+    # https://github.com/benoitc/hackney#send-a-body
+    # Name should be string
+    opts =
+      opts
+      |> Enum.reject(fn {_k, v} -> is_nil(v) end)
+      |> Enum.map(fn {k, v} -> {to_string(k), to_string(v)} end)
+
+    data = List.flatten(opts, [{"file", file_content}, {"token", uptoken}])
+
+    post_data = {:multipart, data}
+
+    Qiniu.HTTP.post(Qiniu.config()[:up_host], post_data,
+      headers: [{"Content-Type", "multipart/form-data"}]
+    )
   end
 end
