@@ -6,8 +6,8 @@ defmodule Qiniu.Fop.AV do
   alias Qiniu.HTTP
 
   def avthumb(bucket_name, key, opts \\ []) do
-    query_opts = opts |> Keyword.take([:notifyURL, :pipeline]) |> Enum.into(%{})
-    fog_opts = opts |> Keyword.delete(:notifyURL) |> Keyword.delete(:pipeline)
+    query_opts = %{pipeline: opts[:pipeline], notifyURL: opts[:notify_url]}
+    fog_opts = opts |> Keyword.delete(:notify_url) |> Keyword.delete(:pipeline)
 
     body =
       %{
