@@ -7,7 +7,7 @@ defmodule Qiniu.Fop.Zip do
 
   def multi_files(save_bucket, save_key, exist_url_in_save_bucket, resource_keys, build_url_func \\ nil, opts \\ [])
       when is_list(resource_keys) and length(resource_keys) > 0 do
-    saveas = Base.url_encode64("#{save_bucket}:#{save_key}")
+    saveas = build_saves(save_bucket, save_key)
     res_keys = build_zip_resource(resource_keys, build_url_func)
 
     body = %{
@@ -24,7 +24,7 @@ defmodule Qiniu.Fop.Zip do
 
   # if you don't set saveas, you won't get the zip file, it'll create a zip file named by hash string.
   def massive_files(index_bucket, index_key, save_bucket, save_key, opts \\ []) do
-    saveas = Base.url_encode64("#{save_bucket}:#{save_key}")
+    saveas = build_saves(save_bucket, save_key)
 
     body = %{
              bucket: index_bucket,
@@ -44,7 +44,7 @@ defmodule Qiniu.Fop.Zip do
 
     index_policy = PutPolicy.build(index_bucket, index_key)
     with {:ok, _} <- Uploader.upload_buffer(index_policy, index_file_buf, content_type: "text/plain") do
-      saveas = Base.url_encode64("#{save_bucket}:#{save_key}")
+      saveas = build_saves(save_bucket, save_key)
 
       body =
         %{
@@ -85,5 +85,9 @@ defmodule Qiniu.Fop.Zip do
 
   defp concat_with_encoded_key(build_url_func, key) do
     "url/#{Base.url_encode64(build_url_func.(key))}"
+  end
+
+  defp build_saves(save_bucket, save_key) do
+    Base.url_encode64("#{save_bucket}:#{save_key}")
   end
 end
