@@ -70,6 +70,7 @@ defmodule Qiniu.FopPolicy do
       {_, nil} -> true
       _ -> false
     end)
+    |> Enum.map(fn {k, v} -> {Qiniu.Utils.camelize(k), v} end)
     |> Map.new()
     |> URI.encode_query()
   end
