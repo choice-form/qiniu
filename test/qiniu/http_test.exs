@@ -11,28 +11,34 @@ defmodule Qiniu.HTTPTest do
 
   test "parsing json body" do
     url = "http://up.qiniu.com"
+
     headers = [
-      accept: "application/json",
+      user_agent: Qiniu.config()[:user_agent],
       connection: "close",
-      user_agent: Qiniu.config[:user_agent],
+      accept: "application/json"
     ]
+
     body = "body"
     resp = %Response{body: "{\"status\":\"ok\"}"}
-    with_mock HTTPoison, [:passthrough], [post!: fn(^url, ^body, ^headers) -> resp end] do
+
+    with_mock HTTPoison, [:passthrough], post!: fn ^url, ^body, ^headers -> resp end do
       assert HTTP.post(url, body) == %Response{body: %{"status" => "ok"}}
     end
   end
 
   test "returns response directly" do
     url = "http://up.qiniu.com"
+
     headers = [
-      accept: "application/json",
+      user_agent: Qiniu.config()[:user_agent],
       connection: "close",
-      user_agent: Qiniu.config[:user_agent],
+      accept: "application/json"
     ]
+
     body = "body"
     resp = %Response{body: "response"}
-    with_mock HTTPoison, [:passthrough], [post!: fn(^url, ^body, ^headers) -> resp end] do
+
+    with_mock HTTPoison, [:passthrough], post!: fn ^url, ^body, ^headers -> resp end do
       assert HTTP.post(url, body) == %Response{body: "response"}
     end
   end
