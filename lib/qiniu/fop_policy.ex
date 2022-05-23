@@ -70,7 +70,11 @@ defmodule Qiniu.FopPolicy do
       {_, nil} -> true
       _ -> false
     end)
-    |> Enum.map(fn {k, v} -> {Qiniu.Utils.camelize(k), v} end)
+    |> Enum.map(fn
+      # NOTE 特殊处理回调 URL 参数
+      {:notify_url, url} -> {"notifyURL", url}
+      {k, v} -> {Qiniu.Utils.camelize(k), v}
+    end)
     |> Map.new()
     |> URI.encode_query()
   end
