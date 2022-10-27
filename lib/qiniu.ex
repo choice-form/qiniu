@@ -1,4 +1,6 @@
 defmodule Qiniu do
+  @qiniu_config Application.compile_env(:qiniu, Qiniu, [])
+
   @moduledoc """
   Top module of this package. For configuration at this moment.
   """
@@ -20,7 +22,7 @@ defmodule Qiniu do
 
   """
   def config do
-    Keyword.merge(default_config(), Application.get_env(:qiniu, Qiniu, []))
+    Keyword.merge(default_config(), @qiniu_config)
   end
 
   defp default_config do

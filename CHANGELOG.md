@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+* Use compile_env/3 instead of get_env/3 for Elixir version above 1.14
+
 ## v0.3.3 (2016-08-11)
 
 * parse HTTP response by default
