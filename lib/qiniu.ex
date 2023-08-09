@@ -23,6 +23,10 @@ defmodule Qiniu do
     Keyword.merge(default_config(), Application.get_env(:qiniu, Qiniu, []))
   end
 
+  def region do
+    config()[:region]
+  end
+
   defp default_config do
     [
       user_agent: "QiniuElixir/#{System.version()}",
@@ -31,7 +35,8 @@ defmodule Qiniu do
       rs_host: "http://rs.qiniu.com",
       rsf_host: "http://rsf.qbox.me",
       io_host: "http://iovip.qbox.me",
-      api_host: "http://api.qiniu.com"
+      api_host: "http://api.qiniu.com",
+      region: "z0"
     ]
   end
 end
