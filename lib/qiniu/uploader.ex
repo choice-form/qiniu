@@ -4,6 +4,7 @@ defmodule Qiniu.Uploader do
   """
 
   alias Qiniu.PutPolicy
+  alias Qiniu.Host
 
   @doc """
   Upload a file directly.
@@ -44,7 +45,7 @@ defmodule Qiniu.Uploader do
     data = List.flatten(opts, [{:file, local_file}, {"token", uptoken}])
     post_data = {:multipart, data}
 
-    Qiniu.HTTP.post(Qiniu.config()[:up_host], post_data)
+    Qiniu.HTTP.post(Host.up_host(Qiniu.region()), post_data)
   end
 
   def upload_buffer(put_policy, file_content, opts \\ [])
@@ -66,7 +67,7 @@ defmodule Qiniu.Uploader do
 
     post_data = {:multipart, data}
 
-    Qiniu.HTTP.post(Qiniu.config()[:up_host], post_data,
+    Qiniu.HTTP.post(Host.up_host(Qiniu.region()), post_data,
       headers: [{"Content-Type", "multipart/form-data"}]
     )
   end

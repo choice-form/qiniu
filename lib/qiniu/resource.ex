@@ -1,4 +1,6 @@
 defmodule Qiniu.Resource do
+  alias Qiniu.Host
+
   @moduledoc """
   Module to managing resource
 
@@ -62,7 +64,7 @@ defmodule Qiniu.Resource do
   def delete(uri, days) when is_integer(days) and days >= 0 do
     encoded_uri = Base.url_encode64(uri)
 
-    [Qiniu.config()[:rs_host], "deleteAfterDays", encoded_uri, Integer.to_string(days)]
+    [Host.rs_host(Qiniu.region()), "deleteAfterDays", encoded_uri, Integer.to_string(days)]
     |> Path.join()
     |> auth_post()
   end
@@ -76,7 +78,7 @@ defmodule Qiniu.Resource do
   """
   def batch(ops) do
     params = Enum.map_join(ops, "&", &("op=" <> apply(__MODULE__, :op_path, &1)))
-    url = Qiniu.config()[:rs_host] <> "?" <> params
+    url = Host.rs_host(Qiniu.region()) <> "?" <> params
     auth_post(url)
   end
 
@@ -99,7 +101,7 @@ defmodule Qiniu.Resource do
     opts = Keyword.put(opts, :bucket, bucket)
     params = Enum.map_join(opts, "&", fn {k, v} -> "#{k}=#{v}" end)
 
-    url = Path.join([Qiniu.config()[:rsf_host], "list?#{params}"])
+    url = Path.join([Host.rsf_host(Qiniu.region()), "list?#{params}"])
     auth_post(url)
   end
 
@@ -114,7 +116,7 @@ defmodule Qiniu.Resource do
   def fetch(url, entry_uri) do
     encoded_url = Base.url_encode64(url)
     encoded_dest = Base.url_encode64(entry_uri)
-    url = Path.join([Qiniu.config()[:io_host], "fetch", encoded_url, "to", encoded_dest])
+    url = Path.join([Host.io_host(Qiniu.region()), "fetch", encoded_url, "to", encoded_dest])
     auth_post(url)
   end
 
@@ -128,7 +130,7 @@ defmodule Qiniu.Resource do
     * `uri` - URI of destiny entry, "bucket:key"
   """
   def prefetch(uri) do
-    url = Path.join([Qiniu.config()[:io_host], "prefetch", Base.url_encode64(uri)])
+    url = Path.join([Host.io_host(Qiniu.region()), "prefetch", Base.url_encode64(uri)])
     auth_post(url)
   end
 
@@ -143,7 +145,7 @@ defmodule Qiniu.Resource do
   def chgm(entry_uri, mime) do
     encoded_uri = Base.url_encode64(entry_uri)
     encoded_mime = Base.url_encode64(mime)
-    url = Path.join([Qiniu.config()[:rs_host], "chgm", encoded_uri, "mime", encoded_mime])
+    url = Path.join([Host.rs_host(Qiniu.region()), "chgm", encoded_uri, "mime", encoded_mime])
     auth_post(url)
   end
 
@@ -153,7 +155,7 @@ defmodule Qiniu.Resource do
   end
 
   defp op_url(op, source_uri, dest_uri \\ nil) do
-    Qiniu.config()[:rs_host] <> op_path(op, source_uri, dest_uri)
+    Host.rs_host(Qiniu.region()) <> op_path(op, source_uri, dest_uri)
   end
 
   @doc false

@@ -1,5 +1,5 @@
 defmodule Qiniu.ChunkUploadTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   import Mock
 
@@ -25,7 +25,8 @@ defmodule Qiniu.ChunkUploadTest do
        ]}
     ]) do
       ChunkUpload.chunk_upload(put_policy[:scope], "~4.jpg")
-      assert called(HTTP.post("http://up.qiniu.com/mkfile/4096", "ctx,ctx,ctx,ctx", :_))
+
+      assert called(HTTP.post("https://up.qiniup.com/mkfile/4096", "ctx,ctx,ctx,ctx", :_))
     end
   end
 
@@ -127,7 +128,7 @@ defmodule Qiniu.ChunkUploadTest do
        ]}
     ]) do
       ChunkUpload.mkfile("123", 1024, [key: "test"], "key")
-      assert called(HTTP.post("http://up.qiniu.com/mkfile/1024/key/dGVzdA==", :_, :_))
+      assert called(HTTP.post("https://up.qiniup.com/mkfile/1024/key/dGVzdA==", :_, :_))
     end
   end
 end

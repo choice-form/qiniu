@@ -1,6 +1,7 @@
 defmodule Qiniu.Pfop do
   alias Qiniu.HTTP
   alias Qiniu.FopPolicy
+  alias Qiniu.Host
 
   @doc """
   Execute a pfop action.
@@ -15,7 +16,7 @@ defmodule Qiniu.Pfop do
       %HTTPoison.Response{body: %{"persistentId" => "id"}}
   """
   def pfop(%FopPolicy{} = policy) do
-    url = "#{Qiniu.config()[:api_host]}/pfop/"
+    url = "#{Host.pfop_api_host()}/pfop/"
 
     HTTP.auth_post(url, FopPolicy.encoded_json(policy))
   end
@@ -26,6 +27,6 @@ defmodule Qiniu.Pfop do
   [Document](https://developer.qiniu.com/dora/1294/persistent-processing-status-query-prefop)
   """
   def prefop(persistent_id) do
-    HTTP.get("#{Qiniu.config()[:api_host]}/status/get/prefop?id=#{persistent_id}")
+    HTTP.get("#{Host.pfop_api_host()}/status/get/prefop?id=#{persistent_id}")
   end
 end
