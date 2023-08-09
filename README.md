@@ -19,7 +19,7 @@ def application do
 end
 
 defp deps do
-  [{:qiniu, "~> 0.3.0"}]
+  [{:qiniu, "~> 0.5.0"}]
 end
 ```
 
@@ -31,7 +31,8 @@ Then run `$ mix deps.get`
 # config/prod.secret.exs (You'd better not add this file to git)
 config :qiniu, Qiniu,
   access_key: "key",
-  secret_key: "secret"
+  secret_key: "secret",
+  region: "region"
 ```
 
 ## Usage

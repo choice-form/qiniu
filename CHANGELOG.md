@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.0 (2023-08-09)
+
+* request host by region, only support one region now.
+
 ## v0.3.3 (2016-08-11)
 
 * parse HTTP response by default
