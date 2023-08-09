@@ -4,6 +4,7 @@ defmodule Qiniu.Fop.AV do
   https://developer.qiniu.com/dora/manual/3685/directions-for-use-av
   """
   alias Qiniu.HTTP
+  alias Qiniu.Host
 
   def avthumb(bucket_name, key, opts \\ []) do
     query_opts = opts |> Keyword.take([:notifyURL, :pipeline]) |> Enum.into(%{})
@@ -18,7 +19,7 @@ defmodule Qiniu.Fop.AV do
       |> Map.merge(query_opts)
       |> URI.encode_query()
 
-    HTTP.auth_post("#{Qiniu.config()[:api_host]}/pfop/", body)
+    HTTP.auth_post("#{Host.pfop_api_host()}/pfop/", body)
   end
 
   @doc """

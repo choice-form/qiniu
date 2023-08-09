@@ -4,6 +4,7 @@ defmodule Qiniu.ChunkUpload do
   """
 
   alias Qiniu.PutPolicy
+  alias Qiniu.Host
 
   @default_block_size 1024 * 1024 * 4
 
@@ -96,20 +97,18 @@ defmodule Qiniu.ChunkUpload do
         authorization: "UpToken " <> uptoken
       )
 
-    url = Qiniu.config()[:up_host] <> "/mkblk/#{block_size}"
+    url = Host.up_host(Qiniu.region()) <> "/mkblk/#{block_size}"
     post_with_retry(url, stream, %{headers: headers})
   end
 
-  def bput(stream, offset, ctx, uptoken, host \\ "") do
+  def bput(stream, offset, ctx, uptoken, host \\ Host.up_host(Qiniu.region())) do
     headers = [
       content_type: "application/octet-stream",
       content_length: byte_size(stream),
       authorization: "UpToken " <> uptoken
     ]
 
-    url =
-      (host || Qiniu.config()[:up_host]) <>
-        "/bput/#{ctx}/#{offset * @default_chunk_size}"
+    url = host <> "/bput/#{ctx}/#{offset * @default_chunk_size}"
 
     post_with_retry(url, stream, %{headers: headers})
   end
@@ -126,7 +125,7 @@ defmodule Qiniu.ChunkUpload do
       Keyword.take(opts, [:key, :mimeType])
       |> Enum.reduce("", fn {k, v}, acc -> acc <> "/#{k}/#{Base.encode64(v)}" end)
 
-    url = Qiniu.config()[:up_host] <> "/mkfile/#{size}#{opts_string}"
+    url = Host.up_host(Qiniu.region()) <> "/mkfile/#{size}#{opts_string}"
     post_with_retry(url, ctxs, %{headers: headers})
   end
 
