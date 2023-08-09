@@ -6,7 +6,7 @@ defmodule Qiniu.Utils do
   @doc """
   Calculate deadline with expires_in(seconds)
   """
-  def calculate_deadline(expires_in) when is_integer(expires_in) and expires_in > 0  do
+  def calculate_deadline(expires_in) when is_integer(expires_in) and expires_in > 0 do
     current_seconds() + expires_in
   end
 
@@ -17,7 +17,7 @@ defmodule Qiniu.Utils do
   end
 
   defp current_time do
-    :os.timestamp
+    :os.timestamp()
   end
 
   @doc """
@@ -27,7 +27,7 @@ defmodule Qiniu.Utils do
       "returnBody"
   """
   def camelize(string) do
-    string |> to_string |> Macro.camelize |> uncapitalize
+    string |> to_string |> Macro.camelize() |> uncapitalize
   end
 
   defp uncapitalize(str) do

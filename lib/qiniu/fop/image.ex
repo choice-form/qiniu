@@ -50,21 +50,25 @@ defmodule Qiniu.Fop.Image do
     * `:dy`
   """
   def watermark(type, image_url, watermark_url, opts \\ [])
+
   def watermark(:image, image_url, watermark_url, opts) do
     valid_opts = Keyword.take(opts, [:dissolve, :gravity, :dx, :dy])
     params = Enum.map_join(valid_opts, "/", fn {k, v} -> "#{k}/#{v}" end)
     params = "?watermark/1/image/#{Base.url_encode64(watermark_url)}/" <> params
-    HTTP.get image_url <> params
+    HTTP.get(image_url <> params)
   end
 
   def watermark(:text, image_url, text, opts) do
     valid_opts = Keyword.take(opts, [:font, :font_size, :fill, :dissolve, :gravity, :dx, :dy])
-    params = Enum.map_join(valid_opts, "/", fn {k, v} ->
-      encoded_v = if k == :font || k == :fill, do: Base.url_encode64(v), else: v
-      "#{k}/#{encoded_v}"
-    end)
+
+    params =
+      Enum.map_join(valid_opts, "/", fn {k, v} ->
+        encoded_v = if k == :font || k == :fill, do: Base.url_encode64(v), else: v
+        "#{k}/#{encoded_v}"
+      end)
+
     params = "?watermark/2/text/#{Base.url_encode64(text)}/" <> params
-    HTTP.get image_url <> params
+    HTTP.get(image_url <> params)
   end
 
   @doc """
@@ -75,5 +79,4 @@ defmodule Qiniu.Fop.Image do
   def avg_hue(url) do
     HTTP.get(url <> "?imageAve")
   end
-
 end
