@@ -25,7 +25,7 @@ defmodule Qiniu.Mixfile do
   defp deps do
     [
       {:jason, "~> 1.2"},
-      {:httpoison, "~> 1.8"},
+      {:httpoison, "~> 2.0"},
       {:ex_doc, "~> 0.16", only: :docs},
       {:excoveralls, "~> 0.6", only: :test},
       {:earmark, "~> 1.2", only: :docs},
